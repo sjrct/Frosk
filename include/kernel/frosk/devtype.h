@@ -1,0 +1,46 @@
+//
+// include/lib/frosk/devtype.h
+// include/prgm/frosk/devtype.h
+// include/kernel/frosk/devtype.h
+//
+
+#ifndef _FROSK_DEVTYPE_H_
+#define _FROSK_DEVTYPE_H_
+
+#include <util.h>
+
+ENUM(device_register) {
+	DEVICE_ROOT_DISK = 0,
+	DEVICE_DISPLAY,
+	DEVICE_MAX_REG
+};
+
+ENUM(device_type) {
+	DEVICE_INVALID = -1,
+	DEVICE_STREAM,
+	DEVICE_ARBITRARY,
+	DEVICE_TEXT_DISP,
+	DEVICE_PIXEL_DISP,
+	DEVICE_KEYBOARD,
+	DEVICE_MOUSE,
+};
+
+#define DEVICE_STREAM_READ  0
+#define DEVICE_STREAM_WRITE 1
+
+#define DEVICE_ARBITRARY_READ  0
+#define DEVICE_ARBITRARY_WRITE 1
+
+#define DEVICE_TEXT_DISP_OUTCH   0
+#define DEVICE_TEXT_DISP_CLEAR   1
+#define DEVICE_TEXT_DISP_SETINK  2
+#define DEVICE_TEXT_DISP_GETINKF 3
+#define DEVICE_TEXT_DISP_GETINKB 4
+#define DEVICE_TEXT_DISP_MODCUR  5
+#define DEVICE_TEXT_DISP_SETCUR  6
+#define DEVICE_TEXT_DISP_GETCURX 7
+#define DEVICE_TEXT_DISP_GETCURY 8
+#define DEVICE_TEXT_DISP_WIDTH   9
+#define DEVICE_TEXT_DISP_HEIGHT  10
+
+#endif

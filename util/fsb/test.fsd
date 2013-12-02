@@ -1,0 +1,4 @@
+d:[name = sys]
+d:[name = user, perm = rwe, contents = {
+	f:[name = fsb, actual = fsb]
+}]

@@ -1,0 +1,13 @@
+#
+# default.fsd
+#
+
+d:[name = prgm, contents = {
+	f:[name = frash, actual = prgm/frash/frash]
+}]
+
+d:[name = sys, contents = {
+	f:[name = start, actual = sys/start]
+}]
+
+f:[name = kernel.bin, actual = kernel/kernel.bin]
