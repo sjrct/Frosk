@@ -3,6 +3,7 @@
 //
 
 #include "vga.h"
+#include "../../../io.h"
 #include "../../../asm.h"
 #include "../../../memory/kernel.h"
 
@@ -23,7 +24,7 @@ void detect_vga(void)
 		vga_text_enable,
 		vga_text_disable,
 		vga_text_outch,
-		vga_text_clear,	
+		vga_text_clear,
 		vga_text_setink,
 		vga_text_getinkf,
 		vga_text_getinkb,
@@ -131,12 +132,12 @@ int vga_text_getcury(device_t * d)
 int vga_text_width(device_t * d)
 {
 	kprintf("width()\n");
-	return VGA_DATA(d).width;	
+	return VGA_DATA(d).width;
 }
 
 int vga_text_height(device_t * d)
 {
 	kprintf("height = %d\n", VGA_DATA(d).height);
-	return VGA_DATA(d).height;	
+	return VGA_DATA(d).height;
 }
 
