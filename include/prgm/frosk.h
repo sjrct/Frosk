@@ -24,7 +24,7 @@ enum {
 	__FEXEC,
 	__DEV_OF,
 	__GET_DEV_TYPE,
-	__DEVCALL,
+	__DEVCALL, // reflected in lib/frosk/src/syscall.asm
 };
 
 INLINE int _do_i_live(void) {

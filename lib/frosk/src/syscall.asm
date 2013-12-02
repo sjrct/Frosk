@@ -22,6 +22,7 @@ SYSCALL 3, rcx
 
 global _devcall
 _devcall:
-	mov rax, 2
+	; reflected in include/prgm/frosk.h
+	mov rax, 4
 	int 0x40
 	ret

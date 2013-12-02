@@ -75,7 +75,6 @@ void matte_text_init(void)
 
 	_devcall(_matte_dev, DEVICE_TEXT_DISP_SETCUR, 0, 0);
 	scr.width  = _devcall(_matte_dev, DEVICE_TEXT_DISP_WIDTH);
-	_do_i_live();
 	scr.height = _devcall(_matte_dev, DEVICE_TEXT_DISP_HEIGHT);
 
 	push_line();

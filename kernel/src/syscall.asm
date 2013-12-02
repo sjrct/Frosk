@@ -34,7 +34,7 @@ syscall:
 	lea r11, [syscalls_ls]
 	mov rax, [r11 + rax * 8]
 	call rax
-	
+
 	mov r11, rax
 	RESTORE_SEGMENTS
 	mov rax, r11

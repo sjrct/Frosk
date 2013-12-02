@@ -13,15 +13,17 @@ void (* matte_clear)(void);
 
 int matte_init(void)
 {
-	handle_t _matte_dev = _dev_of(DEVICE_DISPLAY);
-	device_type t = _get_dev_type(_matte_dev);
+    device_type type;
 
-	if (t == DEVICE_TEXT_DISP) {
+	_matte_dev = _dev_of(DEVICE_DISPLAY);
+	type = _get_dev_type(_matte_dev);
+
+	if (type == DEVICE_TEXT_DISP) {
 		matte_text_init();
 		return MATTE_TYPE_TEXT;
 	}
 
-	if (t == DEVICE_PIXEL_DISP) {
+	if (type == DEVICE_PIXEL_DISP) {
 		//matte_pixel_init
 		return MATTE_TYPE_PIXEL;
 	}
