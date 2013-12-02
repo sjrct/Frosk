@@ -172,8 +172,11 @@ void matte_putc(char c)
 		break;
 
 	default:
-		scr.cur_line->data[0] = NULL;
-		if (scr.cur_col > scr.cur_line->size) {
+		scr.cur_line->data[scr.cur_col++] = c;
+
+		if (scr.cur_col > scr.width) {
+			matte_putc('\n');
+		} else if (scr.cur_col > scr.cur_line->size) {
 			scr.cur_line->size = scr.cur_col;
 		}
 		break;
