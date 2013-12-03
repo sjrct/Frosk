@@ -10,6 +10,7 @@
 	#define NULL ((void *) 0)
 #endif
 
+#define EOI (0)
 #define INVALID_HANDLE ((handle_t)-1)
 
 typedef unsigned handle_t;
