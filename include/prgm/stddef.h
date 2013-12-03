@@ -1,14 +1,13 @@
 //
 // include/kernel/stddef.h
 // include/prgm/stddef.h
-// include/lib/stddef.h
 //
 
 #ifndef _STDDEF_H_
 #define _STDDEF_H_
 
 #ifndef NULL
-	#define NULL (0)
+	#define NULL ((void *)0)
 #endif
 
 #ifndef _SIZE_T_DEFINED
