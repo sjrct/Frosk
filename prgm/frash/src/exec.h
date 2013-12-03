@@ -5,6 +5,8 @@
 #ifndef EXEC_H
 #define EXEC_H
 
-int exec(const char *);
+#include "parse.h"
+
+int exec(parse_st *);
 
 #endif

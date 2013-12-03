@@ -3,23 +3,26 @@
 //
 
 #include <frosk.h>
-#include <frosk/status.h>
+#include <frosk/state.h>
 #include "exec.h"
+#include "parse.h"
 
 int exec(parse_st * ps)
 {
 	char buf;
-    handle_t child, got;
+	handle_t child, got;
 
-	child = _fexec(ps->cmd, ps->argc, ps->argv);
+	child = _fexec(ps->command, ps->argc, ps->argv);
 
-	while (_status(child) == STATUS_RUNNING) {
-		while ((got = poll_port(0)) != INVALID_HANDLE) {
+	while (_status(child) == STATE_RUNNING) {
+		while ((got = _poll_port()) != INVALID_HANDLE) {
 			if (got == child) {
-				read_port(&buf, 1, got);
+				_read_port(&buf, 1, got);
 			} else {
-				refuse_port(got);
+				_refuse_port(got);
 			}
 		}
 	}
+
+	return 0;
 }
