@@ -41,7 +41,7 @@ asrc   := tss.asm \
           scheduler.asm \
           exceptions.asm \
           dev/dev.asm \
-		  dev/ps2/ps2.asm
+          dev/ps2/ps2.asm
 
 # The lack of -ftree-ter causes problems sometimes in qemu
 # Ideally the necessity for this should be removed
