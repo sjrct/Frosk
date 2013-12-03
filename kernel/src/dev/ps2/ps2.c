@@ -36,6 +36,8 @@ void ps2_kb_put(unsigned sc)
 {
 	kb_buffer * b;
 
+	kprintf("ps2_kb_put(%u)\n", sc);
+
 	if (kb_first == NULL || kb_first->size == BUF_SEG_SIZE) {
 		b = kalloc(sizeof(kb_buffer));
 		b->next = kb_first;
@@ -184,6 +186,7 @@ static void detect_device(uint port, uchar enable, uchar test, uchar mask)
 						ps2_devs[port]->data = ps2d;
 
 						reg_dev(DEVICE_INPUT, ps2_devs[port]->hndl);
+						enable_device(ps2_devs[port]);
 					} else {
 						ps2_devs[port] = NULL; //TODO: implement
 					}
