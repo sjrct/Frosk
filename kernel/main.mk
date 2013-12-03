@@ -24,6 +24,7 @@ csrc   := main.c \
           dev/ps2/ps2.c \
           dev/disk/ata.c \
           dev/video/text/vga.c \
+		  ipc/port.c \
           \
           cstd/string.c \
           extra/string.c \

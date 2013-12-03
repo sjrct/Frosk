@@ -17,6 +17,9 @@ syscalls_ls:
 	FUNC dev_of
 	FUNC get_dev_type
 	FUNC devcall
+	FUNC poll_port
+	FUNC read_port
+	FUNC write_port
 	dq 0
 
 syscalls_count: equ ($ - syscalls_ls) / 8
