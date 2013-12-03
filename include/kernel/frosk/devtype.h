@@ -12,6 +12,7 @@
 ENUM(device_register) {
 	DEVICE_ROOT_DISK = 0,
 	DEVICE_DISPLAY,
+	DEVICE_INPUT,
 	DEVICE_MAX_REG
 };
 

@@ -6,6 +6,7 @@
 #include <string.h>
 #include <frosk/def.h>
 #include "port.h"
+#include "../debug.h"
 #include "../scheduler.h"
 #include "../handle_set.h"
 #include "../memory/kernel.h"
@@ -17,7 +18,7 @@ STRUCT(packet) {
 	uint big_size;
 	uint offset;
 	uint free;
-	ubyte * data;
+	byte * data;
 	packet * next;
 };
 
@@ -31,14 +32,14 @@ static handle_set * to_set = NULL;
 
 handle_t poll_port(void)
 {
-	packet_list * ls = handle_lookup(&to_set, cur_thrd->handle);
+	packet_list * ls = handle_lookup(to_set, cur_thrd->handle);
 	if (ls == NULL) return INVALID_HANDLE;
 	return ls->from;
 }
 
-static void find_pl(packet_list * ppv, packet_list ** pls, handle_t hndl)
+static void find_pl(packet_list ** ppv, packet_list ** pls, handle_t hndl)
 {
- 	while (*pls != NULL && (*pls)->from != hndl) {
+	while (*pls != NULL && (*pls)->from != hndl) {
 		*ppv = *pls;
 		*pls = (*pls)->next;
 	}
@@ -55,7 +56,7 @@ static void fix_first(packet_list * pv, packet_list * ls)
 				insert_handle(&to_set, cur_thrd->handle, ls->next);
 			}
 		} else {
-			pv->next = pk->next;
+			pv->next = ls->next;
 		}
 
 		kfree(ls);
@@ -69,8 +70,8 @@ uint read_port(void * data, uint size, handle_t hndl)
 	packet_list * pv = NULL;
 	uint osize = size;
 
-	ls = handle_lookup(&to_set, cur_thrd->handle);
-    find_pl(&pv, &ls, hndl);
+	ls = handle_lookup(to_set, cur_thrd->handle);
+	find_pl(&pv, &ls, hndl);
 
 	if (ls != NULL) {
 		pkt = ls->first;
@@ -112,8 +113,8 @@ void refuse_port(handle_t hndl)
 		while (ls->first != NULL) {
 			p = ls->first;
 			ls->first = ls->first->next;
-			free(p->data);
-			free(p);
+			kfree(p->data);
+			kfree(p);
 		}
 
 		fix_first(pv, ls);
@@ -126,14 +127,14 @@ uint write_port(void * data, uint size, handle_t to)
 	packet ** ptr;
 	packet_list * ls;
 	packet_list * pv = NULL;
-	uint osize = size;
 
 	ls = handle_lookup(to_set, to);
 
 	if (ls == NULL) {
 		ls = kalloc(sizeof(packet_list));
-		s->from = cur_thrd->handle;
-		ls->next = ls->first = NULL;
+		ls->from  = cur_thrd->handle;
+		ls->next  = NULL;
+		ls->first = NULL;
 		insert_handle(&to_set, to, ls);
 	} else {
 		find_pl(&pv, &ls, to);
@@ -141,9 +142,10 @@ uint write_port(void * data, uint size, handle_t to)
 		if (ls == NULL) {
 			assert(pv != NULL);
 			ls = kalloc(sizeof(packet_list));
-			ls->from = cur_thrd->handle;
-			ls->next = ls->first = NULL;
-			pv->next = ls;
+			ls->from  = cur_thrd->handle;
+			ls->next  = NULL;
+			ls->first = NULL;
+			pv->next  = ls;
 		}
 	}
 
@@ -154,14 +156,14 @@ uint write_port(void * data, uint size, handle_t to)
 
 	if (*ptr == NULL || (*ptr)->free < size) {
 		if ((*ptr)->free < size) {
-			ptr = (*ptr)->next;
+			ptr = &(*ptr)->next;
 		}
 
 		pkt = kalloc(sizeof(packet));
-		pkt->size = pkt->offset = 0;
 		pkt->big_size = align(size, PACKET_ALIGN);
+		pkt->size = pkt->offset = 0;
 		pkt->free = pkt->big_size;
-		pkt->data = kalloc(ptr->big_size);
+		pkt->data = kalloc(pkt->big_size);
 		pkt->next = NULL;
 		*ptr = pkt;
 	} else {

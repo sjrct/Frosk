@@ -25,6 +25,11 @@ enum {
 	__DEV_OF,
 	__GET_DEV_TYPE,
 	__DEVCALL, // reflected in lib/frosk/src/syscall.asm
+	__POLL_PORT,
+	__READ_PORT,
+	__WRITE_PORT,
+	__REFUSE_PORT,
+	__STATUS,
 };
 
 INLINE int _do_i_live(void) {
@@ -41,6 +46,26 @@ INLINE handle_t _dev_of(device_register r) {
 
 INLINE device_type _get_dev_type(handle_t h) {
 	return __syscall1(h, __GET_DEV_TYPE);
+}
+
+INLINE handle_t _poll_port(void) {
+	return __syscall0(__POLL_PORT);
+}
+
+INLINE handle_t _read_port(char * buf, int size, handle_t from) {
+	return __syscall3((ulong)buf, size, from, __READ_PORT);
+}
+
+INLINE handle_t _write_port(char * buf, int size, handle_t to) {
+	return __syscall3((ulong)buf, size, to, __WRITE_PORT);
+}
+
+INLINE void _refuse_port(handle_t h) {
+	__syscall1(h, __REFUSE_PORT);
+}
+
+INLINE int _status(handle_t thrd) {
+	return __syscall1(thrd, __STATUS);
 }
 
 ulong _devcall(handle_t device, int index,...);

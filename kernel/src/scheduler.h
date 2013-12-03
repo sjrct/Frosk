@@ -6,20 +6,14 @@
 #define SCHEDULER_H
 
 #include <util.h>
+#include <frosk/state.h>
 #include "memory/region.h"
 
 STRUCT(process);
 STRUCT(thread);
-ENUM(thread_state);
 ENUM(privilege);
 
-enum thread_state {
-	STATE_READY = 0,
-	STATE_SETUP,
-	STATE_RUNNING,
-	STATE_WAITING,
-	STATE_STOPPED,
-};
+typedef enum _thread_state thread_state;
 
 enum privilege {
 	PRIVILEGE_NORMAL = 0,
@@ -29,7 +23,7 @@ enum privilege {
 
 #pragma pack(push, 1)
 // reflected in kernel/src/scheduler.asm
-struct process {
+STRUCT(process) {
 	process * next;
 	thread * first;
 	region * code;
@@ -41,7 +35,7 @@ struct process {
 	handle_t handle;
 };
 
-struct thread {
+STRUCT(thread) {
 	process * parent;
 	thread * next_inproc;
 	thread * next_sched;
@@ -59,6 +53,8 @@ thread * spawn(process *, ulong, int, const qword *);
 
 process * get_process(handle_t);
 thread * get_thread(handle_t);
+
+int get_state(handle_t h);
 
 extern process * head_proc;
 extern thread * head_thrd;

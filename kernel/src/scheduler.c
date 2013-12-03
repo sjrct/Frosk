@@ -173,3 +173,10 @@ thread * get_thread(handle_t h)
 {
 	return handle_lookup(thread_handles, h);
 }
+
+int get_state(handle_t h)
+{
+	thread * t = handle_lookup(thread_handles, h);
+	if (t == NULL) return STATE_INVALID;
+	return t->state;
+}

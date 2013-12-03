@@ -49,8 +49,10 @@ STRUCT(device_t) {
 			int  (* height )(device_t *);
 		} text_disp;
 
-//		struct {
-//		} keyboard;
+		struct {
+			unsigned (* getsc)(void);
+		} keyboard;
+
 //		struct {
 //		} mouse;
 	} api;

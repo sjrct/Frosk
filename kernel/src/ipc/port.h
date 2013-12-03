@@ -8,6 +8,7 @@
 #include <util.h>
 
 handle_t poll_port(void);
+void refuse_port(handle_t);
 uint read_port (void *, uint, handle_t);
 uint write_port(void *, uint, handle_t);
 

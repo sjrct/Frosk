@@ -15,6 +15,8 @@
 
 #define WAIT_TIMEOUT 1000
 
+device_t ps2_devs[2];
+
 static int wait_read(void)
 {
 	int timeout = WAIT_TIMEOUT;
@@ -96,7 +98,9 @@ static void detect_device(uint port, uchar enable, uchar test, uchar mask)
 						type = PS2_KB_NORMAL;
 					}
 
-					// TODO
+					if (type == PS2_KB_NORMAL) {
+					} else {
+					}
 
 					kprintf("PS/2 Device %x detected.\n", type);
 				}

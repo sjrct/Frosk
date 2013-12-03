@@ -35,6 +35,7 @@ void setup_kernel_memory(void)
 
 void * kalloc(ulong size)
 {
+	ulong adj_size, l;
 	ulong phys, virt;
 	chunk * first;
 	chunk * prev;
@@ -43,9 +44,26 @@ void * kalloc(ulong size)
 //	kprintf("kalloc(%p)\n", size);
 
 	size = align(size, sizeof(chunk));
-	assert(size <= ADJ_PAGE_SIZE);
 
-	if (head != NULL) {
+	if (size > ADJ_PAGE_SIZE) {
+		// big alloc, get some new pages
+		kprintf("kalloc: big alloc of %d\n", size);
+
+		adj_size = align(size + sizeof(chunk), PAGE_SIZE);
+		virt = alloc_pgs(adj_size, VIRT_PAGES);
+		phys = alloc_pgs(adj_size, PHYS_PAGES);
+
+		for (l = 0; l < adj_size; l += PAGE_SIZE) {
+			pageto(virt + l, (phys + l) | KERN_PAGE_FL);
+		}
+
+		first = (chunk *)virt;
+		first->size = adj_size - sizeof(chunk);
+		first->next = head->next->next;
+		head->next = first;
+		head = first;
+	} else if (head != NULL) {
+		// Look for free data in list
 		prev = head;
 		head = head->next;
 		first = head;
@@ -66,6 +84,7 @@ void * kalloc(ulong size)
 			}
 		}
 	} else {
+		// add the staged to the list
 		assert(staged != NULL);
 		free_kernel_size += staged->size;
 
@@ -75,6 +94,7 @@ void * kalloc(ulong size)
 	}
 		
 	if (head->size == size) {
+		// exact match
 		ret = head;
 
 		if (prev == head) {
@@ -84,6 +104,7 @@ void * kalloc(ulong size)
 			prev->next = head;
 		}
 	} else {
+		// larger match
 		assert(head->size >= size + sizeof(chunk));
 
 		head->size -= size + sizeof(chunk);
@@ -97,6 +118,7 @@ void * kalloc(ulong size)
 //	kprintf("Free kernel size = %p\n", free_kernel_size);
 
 	if (staged == NULL) {
+		// replace the stage page
 		kprintf("kalloc: needed to use staged\n");
 
 		virt = alloc_pgs(PAGE_SIZE, VIRT_PAGES);

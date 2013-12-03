@@ -20,6 +20,8 @@ syscalls_ls:
 	FUNC poll_port
 	FUNC read_port
 	FUNC write_port
+	FUNC refuse_port
+	FUNC get_state
 	dq 0
 
 syscalls_count: equ ($ - syscalls_ls) / 8
