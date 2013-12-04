@@ -114,31 +114,6 @@ process * schedule(const byte * data, ulong csz, ulong bsz, ulong entry, int arg
 	unlock(&scheduler_lock);
 
 	spawn(p, preamble, countof(extv), extv);
-
-/*	process * fp = head_proc;
-	process * a = fp;
-
-	kprintf("processes:\n");
-	do {
-		kprintf("\t%p(%p) -> %p(%p)\n", a, a->handle, a->next, a->next->handle);
-
-		thread * b = a->first;
-		while (b != NULL) {
-			kprintf("\t\t%p(%p) -> %p(%p)\n", b, b->handle, b->next_inproc, access(b->next_inproc, handle, ((uint)-1)));
-			b = b->next_inproc;
-		}
-
-		a = a->next;
-	} while (a != fp);
-
-	kprintf("scheduled threads\n");
-	thread * ft = head_thrd;
-	thread * b = ft;
-	do {
-		kprintf("\t%p(%p) -> %p(%p)\n", b, b->handle, b->next_sched, b->next_sched->handle);
-		b = b->next_sched;
-	} while(b != ft);
-*/
 	return p;
 }
 

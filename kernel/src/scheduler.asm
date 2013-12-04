@@ -179,6 +179,3 @@ align 8
 
 global cur_thrd
 cur_thrd: dq 0
-
-asdfjkl: db 'jello->', 0
-qwerty: db 10, 0
