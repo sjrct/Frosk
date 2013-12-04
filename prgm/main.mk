@@ -7,7 +7,7 @@ ENVIRONMENT := prgm
 include $(TOPD)/env.mk
 
 target := prgm.stb
-sub    := frash
+sub    := frash echo
 smsuf  :=
 
 include $(TOPD)/build/template/sub.mk

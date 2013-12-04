@@ -8,7 +8,6 @@
 #define MAX_ARGC 20
 
 typedef struct {
-	char * command;
 	int argc;
 	char * argv[MAX_ARGC];
 } parse_st;

@@ -13,10 +13,12 @@
 //#define ASSERT assert(_matte_dev == DEVICE_TEXT_DISP)
 
 STRUCT(line) {
-	int wrote, offset;
+	int wrote;   // if written since update, y written at, otherwise, -1
+	int offset;  // y value relative to scr.base_num
 	int size;
 	char * data;
-	line * down, * up;
+	line * down; // increase y (down screen)
+	line * up;   // decrease y (up screen)
 };
 
 STRUCT(screen) {
@@ -25,7 +27,8 @@ STRUCT(screen) {
 	int width, height;
 	int cur_col;
 	line * cur_line;
-	line * bottom, * top;
+	line * bottom; // largest y value
+	line * top;    // smallest y value
 };
 
 static screen scr = {
@@ -34,7 +37,8 @@ static screen scr = {
 	0, 0,
 	0,
 	NULL,
-	NULL, NULL
+	NULL,
+	NULL
 };
 
 static void push_line(void)
@@ -49,14 +53,16 @@ static void push_line(void)
 		scr.lines++;
 		l = malloc(sizeof(line));
 		l->data = malloc(scr.width);
+	}
+
+	if (scr.bottom != NULL) {
 		scr.bottom->down = l;
 	}
 
-	l->size = 0;
+	l->size  = 0;
 	l->wrote = -1;
-	l->up = scr.bottom;
-	l->down = NULL;
-	scr.bottom = l;
+	l->up    = scr.bottom;
+	l->down  = NULL;
 
 	if (scr.top == NULL) {
 		scr.top = l;
@@ -64,6 +70,8 @@ static void push_line(void)
 	} else {
 		l->offset = scr.bottom->offset + 1;
 	}
+
+	scr.bottom = l;
 }
 
 void matte_text_init(void)
@@ -79,7 +87,7 @@ void matte_text_init(void)
 
 	push_line();
 	scr.cur_line = scr.bottom;
-	scr.cur_col = 0;
+	scr.cur_col  = 0;
 	scr.base_num = 0;
 }
 
@@ -101,16 +109,16 @@ void matte_text_reset(void)
 		free(l);
 	}
 
-	scr.base_num = 0;
-	scr.bottom->up = NULL;
-	scr.bottom->size = 0;
+	scr.base_num      = 0;
+	scr.bottom->up    = NULL;
+	scr.bottom->size  = 0;
 	scr.bottom->wrote = 0;
 	scr.top = scr.bottom;
 
 	matte_text_clear();
 }
 
-void matte_text_flush(void)
+void matte_text_flush(int force)
 {
 	int x, y;
 	line * l;
@@ -118,8 +126,9 @@ void matte_text_flush(void)
 	for (l = scr.bottom; l != NULL; l = l->up) {
 		y = scr.base_num + l->offset;
 
-		if (y != l->wrote) {
+		if (y != l->wrote || force) {
 			if (y >= 0 && y < scr.height) {
+				// write to screen!
 				for (x = 0; x < l->size; x++) {
 					matte_outch(l->data[x], x, y);
 				}
@@ -152,27 +161,29 @@ void matte_putc(char c)
 		} else {
 			scr.cur_col--;
 			scr.cur_line->data[scr.cur_col] = 0;
+			scr.cur_line->wrote = 0;
 		}
 		break;
 
 	case 0xA:
-		for (; scr.cur_col < scr.width; scr.cur_col++) {
-			scr.cur_line->data[scr.cur_col] = 0;
+		while (scr.cur_col < scr.width) {
+			scr.cur_line->data[scr.cur_col++] = 0;
 		}
 
 		scr.cur_col = 0;
-		if (scr.cur_line->down == NULL) {
+		if (scr.cur_line->down != NULL) {
 			scr.cur_line = scr.cur_line->down;
 		} else {
 			push_line();
 			scr.cur_line = scr.bottom;
 		}
 
-		matte_flush();
+		matte_flush(0);
 		break;
 
 	default:
 		scr.cur_line->data[scr.cur_col++] = c;
+		scr.cur_line->wrote = -1;
 
 		if (scr.cur_col > scr.width) {
 			matte_putc('\n');
@@ -181,6 +192,8 @@ void matte_putc(char c)
 		}
 		break;
 	}
+
+	_devcall(_matte_dev, DEVICE_TEXT_DISP_SETCUR, scr.cur_col, scr.cur_line->offset + scr.base_num);
 }
 
 void matte_puts(char * s)
@@ -189,4 +202,11 @@ void matte_puts(char * s)
 		matte_putc(*s);
 		s++;
 	}
+}
+
+void matte_setink(matte_color_t f, matte_color_t b)
+{
+	matte_ink.fore = f;
+	matte_ink.back = b;
+	_devcall(_matte_dev, DEVICE_TEXT_DISP_SETINK, f, b);
 }

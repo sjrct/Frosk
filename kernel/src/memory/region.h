@@ -25,6 +25,7 @@ struct region {
 #define region_lower(R) (R->growup ? R->virt : R->virt - R->size)
 #define region_upper(R) (R->growup ? R->virt + R->size : R->virt)
 
+region * construct(ulong, ulong, ulong, int);
 region * allocate(ulong, ulong, int);
 void destroy  (region *);
 void grow     (region *, ulong);
@@ -33,5 +34,6 @@ int  assure   (region *, ulong, ulong);
 int  swapin   (region *, ulong);
 void swapout  (region *);
 int  swapflop (region *, region *, ulong);
+void shift_rgn(region *, ulong);
 
 #endif

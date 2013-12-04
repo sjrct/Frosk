@@ -47,7 +47,11 @@ devcall:
 	add rax, r11
 	mov rax, [rax + device_t.functions]
 
+	; TODO throw error when null function
+	test rax, rax
+	jz .skip
 	call rax
+.skip:
 
 	ret
 

@@ -36,8 +36,6 @@ void ps2_kb_put(unsigned sc)
 {
 	kb_buffer * b;
 
-	kprintf("ps2_kb_put(%u)\n", sc);
-
 	if (kb_first == NULL || kb_first->size == BUF_SEG_SIZE) {
 		b = kalloc(sizeof(kb_buffer));
 		b->next = kb_first;
@@ -55,10 +53,11 @@ void ps2_kb_put(unsigned sc)
 
 unsigned ps2_kb_get(void)
 {
-    unsigned ret;
+	unsigned ret;
 	kb_buffer * b;
 
 	if (kb_last != NULL) {
+		assert(kb_last->size > 0);
 		ret = kb_last->buf[--kb_last->size];
 
 		if (!kb_last->size) {
@@ -78,11 +77,12 @@ unsigned ps2_kb_get(void)
 ulong ps2_kb_read(device_t * d, void * vbuf, ulong size)
 {
 	ulong i;
+	unsigned sc;
 	unsigned * buf = vbuf;
 
 	for (i = 0; i < size; i++) {
-		unsigned sc = ps2_kb_get();
-		if (!sc) break;
+		sc = ps2_kb_get();
+		if (sc == EOI) break;
 		buf[i] = sc;
 	}
 
@@ -149,7 +149,7 @@ static void ps2_command(uint port, uchar cmd, uchar * buf, int sz)
 // device should be disabled
 static void detect_device(uint port, uchar enable, uchar test, uchar mask)
 {
-    ps2_device * ps2d;
+	ps2_device * ps2d;
 	uchar check = 0;
 	ushort type = 0;
 

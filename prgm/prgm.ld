@@ -19,9 +19,9 @@ SECTIONS
 		 *   qword data_size
 		 *   qword entry_point
 		 */
-	
+
 		LONG(0xFBE0FBE0);
-		LONG(0);
+		LONG(_heap_bottom);
 		QUAD(SIZEOF(.text) + SIZEOF(.data))
 		QUAD(SIZEOF(.bss))
 		QUAD(main)
@@ -43,7 +43,7 @@ SECTIONS
 		* (.bss COMMON)
 	}
 
-	_heap_bottom = ALIGN(8);	
+	_heap_bottom = ALIGN(8);
 
 	/DISCARD/ :
 	{

@@ -18,16 +18,17 @@ static char * untilws(char ** s)
 
 parse_st * parse(char * line)
 {
+	char c;
 	parse_st * p = malloc(sizeof(parse_st));
 
-	p->command = untilws(&line);
 	p->argc = 0;
 
-	while (*line != 0 && p->argc < MAX_ARGC) {
+	do {
+		p->argv[p->argc++] = untilws(&line);
+		c = *line;
 		*line = 0;
 		line++;
-		p->argv[p->argc++] = untilws(&line);
-	}
+	} while (c != 0 && p->argc < MAX_ARGC);
 
 	return p;
 }

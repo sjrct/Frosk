@@ -18,7 +18,7 @@ void init_devs(void)
 	for (i = 0; i < DEVICE_MAX_REG; i++) registers[i] = INVALID_HANDLE;
 
 	detect_ata();
-//	detect_ps2();
+	detect_ps2();
 	detect_vga();
 }
 

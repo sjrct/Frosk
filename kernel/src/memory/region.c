@@ -18,36 +18,59 @@ struct region_ls {
 
 static region_ls * in;
 
-static block * create_block(ulong virt, ulong size)
+static block * create_block(ulong virt, ulong phys, ulong size)
 {
 	block * b;
 
 	if (size > 0) {
 		b = kalloc(sizeof(block));
-	
+
 		b->size = align(size, PAGE_SIZE);
 		b->virt = virt;
-		b->phys = alloc_pgs(align(size, PAGE_SIZE), PHYS_PAGES);
+		b->phys = phys;
 		b->next = NULL;
 	} else {
 		b = NULL;
 	}
-	
+
 	return b;
+}
+
+static block * alloc_block(ulong virt, ulong size)
+{
+	ulong phys;
+	size = align(size, PAGE_SIZE);
+	phys = alloc_pgs(size, PHYS_PAGES);
+	return create_block(virt, phys, size);
+}
+
+region * construct(ulong virt, ulong phys, ulong size, int growup)
+{
+	region * r = kalloc(sizeof(region));
+
+	size = align(size, PAGE_SIZE);
+
+	r->size = size;
+	r->virt = virt;
+	r->first = create_block(virt, phys, size);
+	r->last = r->first;
+	r->growup = growup;
+
+	return r;
 }
 
 region * allocate(ulong virt, ulong size, int growup)
 {
 	region * r = kalloc(sizeof(region));
-	
+
 	size = align(size, PAGE_SIZE);
 
 	r->size = size;
 	r->virt = virt;
-	r->first = create_block(virt - !growup * size, size);
+	r->first = alloc_block(virt - !growup * size, size);
 	r->last = r->first;
 	r->growup = growup;
-	
+
 	return r;
 }
 
@@ -55,7 +78,7 @@ void destroy(region * r)
 {
 	block * tmp;
 	block * b = r->first;
-	
+
 	while (b != NULL) {
 		free_pgs(b->phys, b->size, PHYS_PAGES);
 		tmp = b->next;
@@ -95,7 +118,7 @@ int assure(region * r, ulong addr, ulong flags)
 		if (b->virt <= addr && b->virt + b->size > addr) return 1;
 	}
 
-	b = create_block(floor(addr, PAGE_SIZE), PAGE_SIZE);
+	b = alloc_block(floor(addr, PAGE_SIZE), PAGE_SIZE);
 	pageto(b->virt, b->phys | flags);
 
 	b->next = r->first;
@@ -136,7 +159,7 @@ int swapin(region * r, ulong flags)
 			);
 		}
 	}
-	
+
 	return 1;
 }
 
@@ -146,18 +169,18 @@ void swapout(region * r)
 	block * b;
 	region_ls * ls = in;
 	region_ls * pv = NULL;
-	
+
 	for (b = r->first; b != NULL; b = b->next) {
 		for (offset = 0; offset < b->size; offset += PAGE_SIZE) {
 			pageto(b->virt + offset, 0);
 		}
 	}
-	
+
 	while (ls != NULL && r != ls->rgn) {
 		pv = ls;
 		ls = ls->next;
 	}
-	
+
 	if (ls != NULL) {
 		if (pv == NULL) in = ls->next;
 		else pv->next = ls->next;
@@ -173,3 +196,17 @@ int swapflop(region * old, region * new, ulong flags)
 	if (new != NULL) return swapin(new, flags);
 	return 1;
 }
+
+void shift_rgn(region * r, ulong nv)
+{
+	block * b;
+	ulong diff;
+
+	diff = r->virt - nv;
+	r->virt = nv;
+
+	for (b = r->first; b != NULL; b = b->next) {
+		b->virt -= diff;
+	}
+}
+

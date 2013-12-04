@@ -4,6 +4,7 @@
 
 d:[name = prgm, contents = {
 	f:[name = frash, actual = prgm/frash/frash]
+	f:[name = echo, actual = prgm/echo/echo]
 }]
 
 d:[name = sys, contents = {

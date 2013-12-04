@@ -35,7 +35,7 @@ static void down(qword addr, qword tbl, int shift)
 		atq(entry) = v;
 		atq(PM_L1_LOC) = v;
 		invlpg(0);
-		
+
 		for (i = 0; i < PAGE_SIZE; i++) atb(i) = 0;
 	} else {
 		atq(PM_L1_LOC) = v;
@@ -46,13 +46,13 @@ static void down(qword addr, qword tbl, int shift)
 void pageto(ulong virt, ulong value)
 {
 	assert(!(virt % PAGE_SIZE));
-	
+
 	invlpg(virt);
-	
+
 	if (virt >= HIGH_HALF_BOT) {
 		virt -= NON_CANON_SIZE;
 	}
-	
+
 	down(virt, PM_L4_LOC, 39);
 	down(virt, 0, 30);
 	down(virt, 0, 21);
@@ -63,13 +63,13 @@ void pageto(ulong virt, ulong value)
 ulong getpage(ulong virt)
 {
 	assert(!(virt % PAGE_SIZE));
-	
+
 	invlpg(virt);
-	
+
 	if (virt >= HIGH_HALF_BOT) {
 		virt -= NON_CANON_SIZE;
 	}
-	
+
 	down(virt, PM_L4_LOC, 39);
 	down(virt, 0, 30);
 	down(virt, 0, 21);
@@ -81,11 +81,12 @@ void page_fault(ulong error, ulong cr2)
 {
 	region * heap;
 	region * stack;
+	kprintf("cr2 = %p\n", cr2);
 
 	if (error & ERROR_PRESENT) {
 		fatal("Page protection fault (%x) at %p", error, cr2);
 	}
-	
+
 	if (~error & ERROR_USER) {
 		fatal("Kernel page fault (%x) at %p", error, cr2);
 	}

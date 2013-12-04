@@ -13,7 +13,7 @@
 
 syscalls_ls:
 	FUNC do_i_live
-	FUNC fexec
+	FUNC fexec_sc
 	FUNC dev_of
 	FUNC get_dev_type
 	FUNC devcall

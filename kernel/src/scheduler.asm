@@ -21,9 +21,9 @@ struc process
 	.code:      resq 1
 	.timeslice: resd 1
 	.level:     resd 1
-	.main:      resq 1
 	.argv:      resq 1
 	.argc:      resd 1
+	.handle:    resd 1
 endstruc
 
 struc thread
@@ -33,7 +33,7 @@ struc thread
 	.stack:       resq 1
 	.saved_rsp:   resq 1
 	.state:       resd 1
-	.pack:        resd 1
+	.handle:      resd 1
 endstruc
 
 [section .text]
@@ -51,6 +51,7 @@ timer_irq:
 	jz .return_early
 
 	; find ready thread
+	mov rcx, [cur_thrd]
 	mov rbx, [abs head_thrd]
 	test rbx, rbx
 	jz .return_early
@@ -58,8 +59,11 @@ timer_irq:
 
 .search_loop:
 	cmp byte [rbx + thread.state], 0
-	je .search_loop_done
-	
+	jne .search_loop_not_done
+	cmp rbx, rcx
+	jne .search_loop_done
+.search_loop_not_done:
+
 	mov rbx, [rbx + thread.next_sched]
 	cmp rax, rbx
 	je .return_early
@@ -70,15 +74,15 @@ timer_irq:
 	mov byte [rbx + thread.state], 2
 	mov rax, [rbx + thread.next_sched]
 	mov [head_thrd], rax
-	
+
 	; swap in code pages
 	xor rdi, rdi
 	mov rcx, [cur_thrd]
 	test rcx, rcx
 	jz .ct_null
 
-	mov [rcx + thread.parent], rcx
-	mov [rcx + process.code], rdi
+	mov rcx, [rcx + thread.parent]
+	mov rdi, [rcx + process.code]
 .ct_null:
 
 	mov rsi, [rbx + thread.parent]
@@ -88,12 +92,13 @@ timer_irq:
 
 	; push iretq data
 	mov rax, rsp
-	push qword USER_DS | 3
+	push qword KERN_DS
 	push rax
 	pushfq
-	push qword USER_CS | 3
+	push qword KERN_CS
 	mov rax, .return_here
 	push rax
+
 
 	; change old thread status
 	xor rdi, rdi
@@ -101,13 +106,14 @@ timer_irq:
 	test rax, rax
 	jz .ct_null2
 
-	mov [rax + thread.stack], rdi
+	mov rdi, [rax + thread.stack]
 	mov byte [rax + thread.state], 0
 	mov [rax + thread.saved_rsp], rsp
 .ct_null2:
 	mov [cur_thrd], rbx
-	
+
 	; swap in stack
+	mov rsp, 0x70000 ; there might be a better solution to this
 	mov rsi, [rbx + thread.stack]
 	mov rdx, 0x7
 	call swapflop
@@ -161,7 +167,7 @@ preamble_code:
 	pop rdi
 	pop rsi
 	pop rax
-	
+
 	call rax
 
 	; TODO System call to end thread
@@ -173,3 +179,6 @@ align 8
 
 global cur_thrd
 cur_thrd: dq 0
+
+asdfjkl: db 'jello->', 0
+qwerty: db 10, 0

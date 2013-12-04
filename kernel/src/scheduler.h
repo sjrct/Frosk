@@ -29,7 +29,6 @@ STRUCT(process) {
 	region * code;
 	dword timeslice;
 	uint level;
-	qword main;
 	char ** argv;
 	int argc;
 	handle_t handle;
@@ -41,8 +40,7 @@ STRUCT(thread) {
 	thread * next_sched;
 	region * stack;
 	qword rsp;
-	thread_state state;
-	dword pack;
+	dword state;
 	handle_t handle;
 };
 #pragma pack(pop)

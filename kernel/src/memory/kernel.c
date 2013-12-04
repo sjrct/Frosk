@@ -28,7 +28,7 @@ void setup_kernel_memory(void)
 	head = (chunk *)KMEM_START;
 	head->size = ADJ_PAGE_SIZE;
 	head->next = head;
-	
+
 	staged = (chunk *)(KMEM_START + PAGE_SIZE);
 	staged->size = ADJ_PAGE_SIZE;
 }
@@ -47,7 +47,6 @@ void * kalloc(ulong size)
 
 	if (size > ADJ_PAGE_SIZE) {
 		// big alloc, get some new pages
-		kprintf("kalloc: big alloc of %d\n", size);
 
 		adj_size = align(size + sizeof(chunk), PAGE_SIZE);
 		virt = alloc_pgs(adj_size, VIRT_PAGES);
@@ -92,7 +91,7 @@ void * kalloc(ulong size)
 		head->next = head;
 		staged = NULL;
 	}
-		
+
 	if (head->size == size) {
 		// exact match
 		ret = head;
@@ -128,7 +127,7 @@ void * kalloc(ulong size)
 		staged = (chunk *)virt;
 		staged->size = ADJ_PAGE_SIZE;
 	}
-		
+
 	return (void *)(ret + 1);
 }
 
@@ -138,14 +137,14 @@ void kfree(void * ptr)
 	chunk * ck = (chunk *)ptr - 1;
 
 	free_kernel_size += ck->size;
-	
+
 	if (head == NULL) {
 		head = ck;
 		ck->next = ck;
 	} else {
 		it = head->next;
 		prev = head;
-	
+
 		do {
 			if ((ulong)it == (ulong)ptr + ck->size) {
 				prev->next = ck;
@@ -156,7 +155,7 @@ void kfree(void * ptr)
 //				kprintf("~Free kernel size = %p\n", free_kernel_size);
 				return;
 			}
-			
+
 			if ((ulong)ck == (ulong)(it + 1) + it->size) {
 				it->size += ck->size + sizeof(chunk);
 				free_kernel_size += sizeof(chunk);
@@ -164,11 +163,11 @@ void kfree(void * ptr)
 //				kprintf("~Free kernel size = %p\n", free_kernel_size);
 				return;
 			}
-			
+
 			prev = it;
 			it = it->next;
 		} while (prev != head);
-		
+
 		ck->next = head->next;
 		head->next = ck;
 	}

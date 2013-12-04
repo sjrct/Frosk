@@ -24,9 +24,11 @@ excp_gp:
 	mov es, ax
 	mov fs, ax
 	mov ss, ax
-	
+
 	pop rax
 
+	mov rdx, [rsp + 8]
+	mov rcx, [rsp]
 	xor rsi, rsi
 	mov rsi, rax
 	mov rdi, fmt_str
@@ -42,4 +44,4 @@ excp_gp:
 
 [section .data]
 
-fmt_str: db "General Protection Fault: Error Code = %d", 10, 0
+fmt_str: db "General Protection Fault: Error = %d, Address = %p:%p", 10, 0
