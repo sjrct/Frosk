@@ -15,10 +15,10 @@ src := $(addprefix $(CD)/src/,$(src))
 dep := $(addprefix $(CD)/src/,$(dep))
 
 define scope
-$(CD)/$(target): $(src) $(dep)
+$(RCD)/$(target): $(src) $(dep)
 	$(CMD) "$(AS) $(ASFL) -fbin -o $$@ $(src)" "AS $$(subst $(CD)/,$(RCD)/,$$@)"
 
-$(CD)/clean:
+$(RCD)/clean:
 	-$(CMD) "$(RM) -f $(CD)/$(target)" "RM $(RCD)/$(target)"
 endef
 
